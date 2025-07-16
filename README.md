@@ -70,13 +70,13 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 (2, 1, 4, 'Good smartphone, but battery could be better.');
 ```
 
-# คู่มือฉบับสมบูรณ์: การสร้าง REST API ด้วย PHP (โครงสร้างแบบ Framework)
+# คู่มือฉบับสมบูรณ์: การสร้าง REST API ด้วย PHP (ใช้แนวทางคลายๆ Framework)
 
-เอกสารนี้คือคู่มือฉบับสมบูรณ์ที่รวบรวมทุกขั้นตอนในการสร้าง REST API ที่มีประสิทธิภาพ, ปลอดภัย, และง่ายต่อการบำรุงรักษา โดยใช้สถาปัตยกรรมแบบ Framework สมัยใหม่ (Router, Controller, Middleware)
+ขั้นตอนในการสร้าง REST API ที่มีประสิทธิภาพ, ปลอดภัย, และง่ายต่อการบำรุงรักษา โดยใช้สถาปัตยกรรมแบบ Framework สมัยใหม่ (Router, Controller, Middleware)
 
 ## ส่วนที่ 1: การตั้งค่าสภาพแวดล้อม (XAMPP)
 
-เพื่อให้ API ของเราทำงานผ่านโดเมนที่สวยงาม (เช่น `http://php-labapi.com`) เราต้องตั้งค่า Virtual Host ใน Apache ก่อน
+เพื่อให้ API ของเราทำงานผ่านโดเมนที่สวยงาม (เช่น `http://one.com`) เราต้องตั้งค่า Virtual Host ใน Apache ก่อน
 
 ### 1.1 แก้ไขไฟล์ `httpd-vhosts.conf`
 
