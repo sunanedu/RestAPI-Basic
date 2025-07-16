@@ -165,9 +165,9 @@ C:\xampp\htdocs\api1\
 
 ## ส่วนที่ 4: โค้ดโปรแกรมทั้งหมด
 
-ต่อไปนี้คือโค้ดของแต่ละไฟล์ คุณลูกค้าสามารถสร้างไฟล์ตามโครงสร้างด้านบนแล้วคัดลอกโค้ดไปวางได้เลย
+ต่อไปนี้ให้สร้างไฟล์ตามโครงสร้างด้านบนแล้วคัดลอกโค้ดไปวางได้เลย
 
-### File: `/composer.json`
+### ไฟล์: `/composer.json`
 
 ```json
 {
@@ -184,7 +184,7 @@ C:\xampp\htdocs\api1\
 
 **คำแนะนำ:** หลังจากสร้างไฟล์นี้แล้ว ให้เปิด Terminal แล้วรันคำสั่ง `composer install` และ `composer dump-autoload`
 
-### File: `/public/.htaccess`
+### ไฟล์: `/public/.htaccess`
 
 ```yaml
 RewriteEngine On
@@ -199,12 +199,12 @@ RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ $1 [R=200,L]
 
 # ส่งทุก request ไปที่ index.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_ไฟล์NAME} !-f
+RewriteCond %{REQUEST_ไฟล์NAME} !-d
 RewriteRule ^ index.php [QSA,L]
 ```
 
-### File: `/public/index.php`
+### ไฟล์: `/public/index.php`
 
 ```php
 <?php
@@ -228,7 +228,7 @@ $router->dispatch();
 ?>
 ```
 
-### File: `/core/initialize.php`
+### ไฟล์: `/core/initialize.php`
 
 ```php
 <?php
@@ -252,7 +252,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 ?>
 ```
 
-### File: `/config/config.php`
+### ไฟล์: `/config/config.php`
 
 ```php
 <?php
@@ -271,7 +271,7 @@ define('JWT_AUDIENCE', 'one.com');
 ?>
 ```
 
-### File: `/config/Database.php`
+### ไฟล์: `/config/Database.php`
 
 ```php
 <?php
@@ -298,7 +298,7 @@ class Database {
 ?>
 ```
 
-### File: `/src/Core/Router.php`
+### ไฟล์: `/src/Core/Router.php`
 
 ```php
 <?php
@@ -360,7 +360,7 @@ class Router {
 ?>
 ```
 
-### File: `/src/Middleware/AuthMiddleware.php`
+### ไฟล์: `/src/Middleware/AuthMiddleware.php`
 
 ```php
 <?php
@@ -442,7 +442,7 @@ class AuthMiddleware {
 ?>
 ```
 
-### File: `/src/routes.php`
+### ไฟล์: `/src/routes.php`
 
 ```php
 <?php
@@ -477,7 +477,7 @@ $router->delete('/api/users/{id}', [UserController::class, 'delete'], [AuthMiddl
 ?>
 ```
 
-### File: `/src/Controllers/AuthController.php`
+### ไฟล์: `/src/Controllers/AuthController.php`
 
 ```php
 <?php
@@ -494,7 +494,7 @@ class AuthController {
     }
 
     public function login() {
-        $data = json_decode(file_get_contents("php://input"));
+        $data = json_decode(ไฟล์_get_contents("php://input"));
 
         if (!isset($data->email) || !isset($data->password)) {
             http_response_code(400);
@@ -548,7 +548,7 @@ class AuthController {
 ?>
 ```
 
-### File: `/src/Controllers/UserController.php`
+### ไฟล์: `/src/Controllers/UserController.php`
 
 ```php
 <?php
@@ -610,7 +610,7 @@ class UserController {
     }
 
     public function create() {
-        $data = json_decode(file_get_contents("php://input"));
+        $data = json_decode(ไฟล์_get_contents("php://input"));
         if (!empty($data->username) && !empty($data->email) && !empty($data->password)) {
             $query = "INSERT INTO users SET username=:username, email=:email, password=:password, first_name=:first_name, last_name=:last_name, role=:role";
             $stmt = $this->db->prepare($query);
@@ -648,7 +648,7 @@ class UserController {
     }
 
     public function update($id) {
-        $data = json_decode(file_get_contents("php://input"));
+        $data = json_decode(ไฟล์_get_contents("php://input"));
         if (!empty($data->username) && !empty($data->email) && !empty($data->role)) {
             $query = "UPDATE users SET username = :username, email = :email, first_name = :first_name, last_name = :last_name, role = :role WHERE id = :id";
             $stmt = $this->db->prepare($query);
@@ -698,7 +698,7 @@ class UserController {
     }
 
     public function checkExistence() {
-        $data = json_decode(file_get_contents("php://input"));
+        $data = json_decode(ไฟล์_get_contents("php://input"));
         $field = !empty($data->username) ? 'username' : (!empty($data->email) ? 'email' : null);
 
         if (!$field) {
@@ -721,7 +721,7 @@ class UserController {
     }
 
     public function changePassword($id) {
-        $data = json_decode(file_get_contents("php://input"));
+        $data = json_decode(ไฟล์_get_contents("php://input"));
 
         if (empty($data->old_password) || empty($data->new_password)) {
             http_response_code(400);
