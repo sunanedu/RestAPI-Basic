@@ -1429,7 +1429,47 @@ class UserController {
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							""
+							"// --- สคริปต์ตรวจสอบ JWT Token ก่อนใช้งาน ---",
+							"",
+							"// 1. ดึง Token จากตัวแปรของ Collection",
+							"const token = pm.collectionVariables.get(\"jwt_token\");",
+							"",
+							"// 2. ตรวจสอบว่ามี Token เก็บอยู่หรือไม่",
+							"if (!token) {",
+							"    console.warn(\"ยังไม่มี JWT Token! กรุณา Login ก่อน\");",
+							"} else {",
+							"    console.log(\"Current JWT Token:\", token);",
+							"",
+							"    try {",
+							"        // 3. ถอดรหัสส่วน Payload (ส่วนกลางของ Token)",
+							"        const payloadBase64 = token.split('.')[1];",
+							"        const payloadJson = atob(payloadBase64); // atob คือฟังก์ชันถอดรหัส Base64",
+							"        const payload = JSON.parse(payloadJson);",
+							"",
+							"        console.log(\"ข้อมูลใน Token (Payload):\", payload);",
+							"",
+							"        // 4. ตรวจสอบวันหมดอายุ (exp)",
+							"        const expirationTime = payload.exp; // เวลาหมดอายุ (เป็น Unix Timestamp หน่วยวินาที)",
+							"        const currentTime = Math.floor(Date.now() / 1000); // เวลาปัจจุบัน (หน่วยวินาที)",
+							"",
+							"        // แปลงเป็นเวลาที่อ่านง่ายเพื่อแสดงผล",
+							"        const expirationDate = new Date(expirationTime * 1000);",
+							"        const currentDate = new Date(currentTime * 1000);",
+							"",
+							"        console.log(\"Token หมดอายุเวลา:\", expirationDate.toLocaleString('th-TH'));",
+							"        console.log(\"เวลาปัจจุบันคือ:\", currentDate.toLocaleString('th-TH'));",
+							"        ",
+							"        if (currentTime >= expirationTime) {",
+							"            console.error(\"!!! TOKEN หมดอายุแล้ว !!! กรุณา Login ใหม่อีกครั้ง\");",
+							"        } else {",
+							"            const timeLeft = expirationTime - currentTime;",
+							"            console.log(`Token ยังใช้งานได้ เหลือเวลาอีก: ${timeLeft} วินาที`);",
+							"        }",
+							"",
+							"    } catch (e) {",
+							"        console.error(\"ไม่สามารถถอดรหัส JWT Token ได้ อาจจะมีรูปแบบไม่ถูกต้อง\", e);",
+							"    }",
+							"}"
 						]
 					}
 				},
@@ -1459,5 +1499,4 @@ class UserController {
 		}
 	]
 }
-
 ```
