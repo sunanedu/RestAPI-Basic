@@ -70,7 +70,7 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 (2, 1, 4, 'Good smartphone, but battery could be better.');
 ```
 
-# คู่มือฉบับสมบูรณ์: การสร้าง REST API ด้วย PHP (ใช้แนวทางคลายๆ Framework)
+# คู่มือการสร้าง REST API ด้วย PHP (ใช้แนวทางคลายๆ Framework)
 
 ขั้นตอนในการสร้าง REST API ที่มีประสิทธิภาพ, ปลอดภัย, และง่ายต่อการบำรุงรักษา โดยใช้สถาปัตยกรรมแบบ Framework สมัยใหม่ (Router, Controller, Middleware)
 
