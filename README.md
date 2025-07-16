@@ -263,6 +263,26 @@ C:\xampp\htdocs\api1\
 └── composer.json
 ```
 
+คำสั่งสร้างไฟล์และโฟลเดอร์ ใน C:\xampp\htdocs
+```bash
+cd /d C:\xampp\htdocs
+mkdir api1
+cd api1
+mkdir public src config core vendor
+mkdir src\Controllers src\Core src\Middleware
+type nul > public\.htaccess
+type nul > public\index.php
+type nul > src\Controllers\AuthController.php
+type nul > src\Controllers\UserController.php
+type nul > src\Core\Router.php
+type nul > src\Middleware\AuthMiddleware.php
+type nul > src\routes.php
+type nul > config\Database.php
+type nul > config\config.php
+type nul > core\initialize.php
+type nul > composer.json
+tree /F
+```
 ## ขั้นตอนที่ 4: ลงมือเขียนโค้ดกันเลย!
 
 ถึงเวลาสนุกแล้วครับ! ให้สร้างไฟล์ตามโครงสร้างด้านบน แล้วคัดลอกโค้ดเหล่านี้ไปวางได้เลย
