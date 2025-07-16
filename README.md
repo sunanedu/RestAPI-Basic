@@ -854,3 +854,610 @@ class UserController {
 ?>
 ```
 
+# คู่มือการใช้งาน API และตัวอย่างการเรียก Endpoint
+
+เอกสารนี้จะอธิบายวิธีการเรียกใช้งานแต่ละ Endpoint ของ API ที่เราได้สร้างขึ้น พร้อมตัวอย่าง Request, Response, และสิทธิ์ที่จำเป็นในการเข้าถึง
+
+## 1. การเตรียมตัวเบื้องต้น
+
+* **โปรแกรม:** ต้องมีโปรแกรมสำหรับทดสอบ API เช่น [Postman](https://www.postman.com/downloads/ "null") หรือ [Insomnia](https://insomnia.rest/download "null")
+
+* **Token:** การเรียกใช้งาน Endpoint ส่วนใหญ่จำเป็นต้องมีการยืนยันตัวตนด้วย JWT Token ซึ่งจะได้รับมาจากการ Login
+
+## 2. การยืนยันตัวตน (Authentication)
+
+### 2.1 Login เพื่อรับ Token
+
+นี่คือขั้นตอนแรกและสำคัญที่สุดเพื่อเข้าใช้งานระบบ
+
+* **Endpoint:** `POST /auth/login`
+
+* **สิทธิ์:** ไม่ต้อง Login (แขก)
+
+* **คำอธิบาย:** ส่ง `email` และ `password` เพื่อขอรับ JWT Token สำหรับการยืนยันตัวตนใน Request ต่อๆ ไป
+
+**ตัวอย่าง Request Body:**
+
+```
+{
+    "email": "admin@example.com",
+    "password": "your_password"
+}
+```
+
+**ตัวอย่าง Response (สำเร็จ):**
+
+```
+{
+    "message": "Login successful.",
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi..."
+}
+```
+
+**คำแนะนำ:** ให้คัดลอกค่า `token` ที่ได้ทั้งหมดเก็บไว้เพื่อใช้ใน Header ของ Request อื่นๆ
+
+## 3. การจัดการผู้ใช้ (User Management)
+
+**Header ที่ต้องใช้ (สำหรับทุก Endpoint ที่ต้อง Login):**
+
+* **Key:** `Authorization`
+
+* **Value:** `Bearer <TOKEN_ที่ได้จากการ_LOGIN>`
+
+### 3.1 สร้างผู้ใช้ใหม่ (Create User)
+
+* **Endpoint:** `POST /api/users`
+
+* **สิทธิ์:** ไม่ต้อง Login (แขก)
+
+* **คำอธิบาย:** สร้างผู้ใช้ใหม่ในระบบ
+
+**ตัวอย่าง Request Body:**
+
+```
+{
+    "username": "new_employee",
+    "email": "employee1@example.com",
+    "password": "password123",
+    "first_name": "Test",
+    "last_name": "Employee",
+    "role": "employee"
+}
+```
+
+**ตัวอย่าง Response (สำเร็จ):**
+
+```
+{
+    "message": "User was created."
+}
+```
+
+### 3.2 ตรวจสอบ Username/Email ซ้ำ
+
+* **Endpoint:** `POST /api/users/check-existence`
+
+* **สิทธิ์:** ไม่ต้อง Login (แขก)
+
+* **คำอธิบาย:** ใช้สำหรับตรวจสอบว่า `username` หรือ `email` ที่ต้องการใช้นั้นมีอยู่ในระบบแล้วหรือยัง
+
+**ตัวอย่าง Request Body:**
+
+```
+{
+    "email": "employee1@example.com"
+}
+```
+
+**ตัวอย่าง Response (ถ้ามีอยู่แล้ว):**
+
+```
+{
+    "exists": true,
+    "message": "Email already taken."
+}
+```
+
+### 3.3 ดูข้อมูลผู้ใช้ทั้งหมด (Get All Users)
+
+* **Endpoint:** `GET /api/users`
+
+* **สิทธิ์:** พนักงาน (employee) ขึ้นไป
+
+* **คำอธิบาย:** ดึงรายชื่อผู้ใช้ทั้งหมด สามารถใช้ Query Parameters เพื่อค้นหา, กรอง และเรียงลำดับได้
+
+**ตัวอย่างการเรียกใช้งาน:**
+
+* **ดูทั้งหมด:** `GET /api/users`
+
+* **ค้นหา:** `GET /api/users?q=John`
+
+* **กรองตาม Role:** `GET /api/users?role=manager`
+
+* **เรียงลำดับ:** `GET /api/users?sort_by=email&order=desc`
+
+* **ใช้ร่วมกัน:** `GET /api/users?role=customer&sort_by=created_at&order=desc`
+
+**ตัวอย่าง Response (สำเร็จ):**
+
+```
+[
+    {
+        "id": 1,
+        "username": "admin1",
+        "email": "admin@example.com",
+        "first_name": "Admin",
+        "last_name": "User",
+        "role": "admin",
+        "created_at": "2025-07-16 03:45:00"
+    },
+    {
+        "id": 2,
+        "username": "new_employee",
+        "email": "employee1@example.com",
+        "first_name": "Test",
+        "last_name": "Employee",
+        "role": "employee",
+        "created_at": "2025-07-16 03:50:15"
+    }
+]
+```
+
+### 3.4 ดูข้อมูลผู้ใช้คนเดียว (Get Single User)
+
+* **Endpoint:** `GET /api/users/{id}`
+
+* **สิทธิ์:**
+
+  * **ลูกค้า (customer):** ดูได้เฉพาะข้อมูลตัวเอง
+
+  * **หัวหน้า (manager) ขึ้นไป:** ดูข้อมูลของใครก็ได้
+
+* **คำอธิบาย:** ดึงข้อมูลผู้ใช้ตาม ID ที่ระบุ
+
+**ตัวอย่างการเรียกใช้งาน:** `GET /api/users/2`
+
+**ตัวอย่าง Response (สำเร็จ):**
+
+```
+{
+    "id": 2,
+    "username": "new_employee",
+    "email": "employee1@example.com",
+    "first_name": "Test",
+    "last_name": "Employee",
+    "role": "employee",
+    "created_at": "2025-07-16 03:50:15"
+}
+```
+
+### 3.5 แก้ไขข้อมูลผู้ใช้ (Update User)
+
+* **Endpoint:** `PUT /api/users/{id}`
+
+* **สิทธิ์:**
+
+  * **ลูกค้า (customer):** แก้ไขได้เฉพาะข้อมูลตัวเอง
+
+  * **หัวหน้า (manager) ขึ้นไป:** แก้ไขข้อมูลของใครก็ได้
+
+* **คำอธิบาย:** อัปเดตข้อมูลทั่วไปของผู้ใช้
+
+**ตัวอย่างการเรียกใช้งาน:** `PUT /api/users/2`
+
+**ตัวอย่าง Request Body:**
+
+```
+{
+    "username": "new_employee_updated",
+    "email": "employee1.new@example.com",
+    "first_name": "Test",
+    "last_name": "EmployeeUpdated",
+    "role": "employee"
+}
+```
+
+**ตัวอย่าง Response (สำเร็จ):**
+
+```
+{
+    "message": "User was updated."
+}
+```
+
+### 3.6 เปลี่ยนรหัสผ่าน (Change Password)
+
+* **Endpoint:** `POST /api/users/{id}/change-password`
+
+* **สิทธิ์:**
+
+  * **ลูกค้า (customer):** เปลี่ยนได้เฉพาะรหัสผ่านตัวเอง
+
+  * **ผู้ดูแลระบบ (admin):** เปลี่ยนรหัสผ่านของใครก็ได้
+
+* **คำอธิบาย:** เปลี่ยนรหัสผ่านของผู้ใช้
+
+**ตัวอย่างการเรียกใช้งาน:** `POST /api/users/2/change-password`
+
+**ตัวอย่าง Request Body:**
+
+```
+{
+    "old_password": "password123",
+    "new_password": "newStrongerPassword456"
+}
+```
+
+**ตัวอย่าง Response (สำเร็จ):**
+
+```
+{
+    "message": "Password updated successfully."
+}
+```
+
+### 3.7 ลบผู้ใช้ (Delete User)
+
+* **Endpoint:** `DELETE /api/users/{id}`
+
+* **สิทธิ์:** ผู้ดูแลระบบ (admin) เท่านั้น
+
+* **คำอธิบาย:** ลบผู้ใช้ออกจากระบบ (เป็นการกระทำที่ควรระวัง)
+
+**ตัวอย่างการเรียกใช้งาน:** `DELETE /api/users/2`
+
+**ตัวอย่าง Response (สำเร็จ):**
+
+```
+{
+    "message": "User was deleted."
+}
+```
+
+### วิธีใช้งานไฟล์ Postman Collection
+
+1. **คัดลอกโค้ด:** คัดลอกเนื้อหาทั้งหมดในกล่องโค้ด "Postman Collection สำหรับทดสอบ API" ด้านบน
+
+2. **สร้างไฟล์ใหม่:** สร้างไฟล์ใหม่บนคอมพิวเตอร์ของคุณ ตั้งชื่ออะไรก็ได้ แต่ให้ลงท้ายด้วย `.json` เช่น `PHP_API.postman_collection.json`
+
+3. **วางโค้ด:** วางโค้ดที่คัดลอกมาลงในไฟล์แล้วบันทึก
+
+4. **Import ใน Postman:**
+
+   * เปิดโปรแกรม Postman
+
+   * ไปที่เมนู `File` > `Import...` หรือกดปุ่ม `Import`
+
+   * เลือกไฟล์ `.json` ที่คุณเพิ่งสร้างไว้
+
+5. **ทดสอบ:**
+
+   * คุณจะเห็น Collection ใหม่ชื่อ "PHP Lab API"
+
+   * เปิด Collection แล้วไปที่ `Authentication` > `Login`
+
+   * แก้ไข `email` และ `password` ใน Body ให้ถูกต้องแล้วกด `Send`
+
+   * หลังจาก Login สำเร็จ Token จะถูกบันทึกอัตโนมัติ
+
+   * ตอนนี้คุณสามารถเรียกใช้งาน Request อื่นๆ ในโฟลเดอร์ `User Management` ได้เลย
+
+```json
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+		"name": "PHP Lab API",
+		"description": "Collection for testing the PHP REST API with JWT and Role-Based Access Control.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ทดสอบว่า request สำเร็จหรือไม่",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// ดึง token จาก response แล้วเก็บไว้ใน collection variable",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+									"    console.log(\"JWT Token saved.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"admin_password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "ส่ง Email และ Password เพื่อรับ JWT Token. \nToken จะถูกบันทึกใน Collection Variable `jwt_token` อัตโนมัติ"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints สำหรับการยืนยันตัวตน"
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"new_manager\",\n    \"email\": \"manager@example.com\",\n    \"password\": \"manager_pass\",\n    \"first_name\": \"The\",\n    \"last_name\": \"Manager\",\n    \"role\": \"manager\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						},
+						"description": "สร้างผู้ใช้ใหม่ ไม่ต้อง Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Existence",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"manager@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/check-existence",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"check-existence"
+							]
+						},
+						"description": "ตรวจสอบว่า username หรือ email มีอยู่แล้วหรือไม่"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/api/users?role=manager&sort_by=email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "manager",
+									"description": "กรองตาม role (customer, employee, manager, director, admin)"
+								},
+								{
+									"key": "sort_by",
+									"value": "email",
+									"description": "เรียงตาม (id, username, email, first_name, last_name, created_at)"
+								},
+								{
+									"key": "order",
+									"value": "asc",
+									"description": "(asc, desc)",
+									"disabled": true
+								},
+								{
+									"key": "q",
+									"value": "test",
+									"description": "ค้นหาด้วย keyword",
+									"disabled": true
+								}
+							]
+						},
+						"description": "ดูผู้ใช้ทั้งหมด (ต้องมีสิทธิ์ Employee ขึ้นไป)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"2"
+							]
+						},
+						"description": "ดูข้อมูลผู้ใช้คนเดียว (ต้องเป็นเจ้าของ หรือ Manager ขึ้นไป)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"the_manager\",\n    \"email\": \"manager.new@example.com\",\n    \"first_name\": \"The\",\n    \"last_name\": \"Big Boss\",\n    \"role\": \"director\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"3"
+							]
+						},
+						"description": "แก้ไขข้อมูลผู้ใช้ (ต้องเป็นเจ้าของ หรือ Manager ขึ้นไป)"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"manager_pass\",\n    \"new_password\": \"new_manager_password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/3/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"3",
+								"change-password"
+							]
+						},
+						"description": "เปลี่ยนรหัสผ่าน (ต้องเป็นเจ้าของ หรือ Admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/4",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"4"
+							]
+						},
+						"description": "ลบผู้ใช้ (ต้องเป็น Admin เท่านั้น)"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{jwt_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://php-labapi.com",
+			"type": "default"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "default",
+			"description": "จะถูกเติมค่าอัตโนมัติหลังจาก Login"
+		}
+	]
+}
+
+```
