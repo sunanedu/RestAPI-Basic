@@ -1118,7 +1118,7 @@ class UserController {
 
 1. **คัดลอกโค้ด:** คัดลอกเนื้อหาทั้งหมดในกล่องโค้ด "Postman Collection สำหรับทดสอบ API" ด้านล่างสุด
 
-2. **สร้างไฟล์ใหม่:** สร้างไฟล์ใหม่บนคอมพิวเตอร์ของคุณ ตั้งชื่ออะไรก็ได้ แต่ให้ลงท้ายด้วย `.json` เช่น `PHP_API.postman_collection.json`
+2. **สร้างไฟล์ใหม่:** สร้างไฟล์ใหม่บนคอมพิวเตอร์ของคุณ ตั้งชื่ออะไรก็ได้ แต่ให้ลงท้ายด้วย `.json` เช่น `RestAPI-Basic.postman_collection.json`
 
 3. **วางโค้ด:** วางโค้ดที่คัดลอกมาลงในไฟล์แล้วบันทึก
 
@@ -1132,7 +1132,7 @@ class UserController {
 
 5. **ทดสอบ:**
 
-   * คุณจะเห็น Collection ใหม่ชื่อ "PHP Lab API"
+   * คุณจะเห็น Collection ใหม่ชื่อ "RestAPI-Basic"
 
    * เปิด Collection แล้วไปที่ `Authentication` > `Login`
 
@@ -1146,7 +1146,7 @@ class UserController {
 {
 	"info": {
 		"_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
-		"name": "PHP Lab API",
+		"name": "RestAPI-Basic",
 		"description": "Collection for testing the PHP REST API with JWT and Role-Based Access Control.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1448,7 +1448,7 @@ class UserController {
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://php-labapi.com",
+			"value": "http://one.com",
 			"type": "default"
 		},
 		{
