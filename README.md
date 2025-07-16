@@ -95,7 +95,7 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 # *** สำคัญ: DocumentRoot ต้องชี้ไปที่โฟลเดอร์ /public ***
 <VirtualHost *:80>
     DocumentRoot "C:/xampp/htdocs/api1/public"
-    ServerName php-labapi.com
+    ServerName one.com
     <Directory "C:/xampp/htdocs/api1/public">
         Options Indexes FollowSymLinks
         AllowOverride All
@@ -108,7 +108,7 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 
 * **ที่ตั้งไฟล์:** `C:\Windows\System32\drivers\etc\hosts` (อาจจะต้องเปิดด้วยสิทธิ์ Administrator)
 
-* **สิ่งที่ต้องทำ:** เพิ่มบรรทัดนี้ลงไปท้ายไฟล์ เพื่อบอกให้คอมพิวเตอร์ของเรารู้จักโดเมน `php-labapi.com`
+* **สิ่งที่ต้องทำ:** เพิ่มบรรทัดนี้ลงไปท้ายไฟล์ เพื่อบอกให้คอมพิวเตอร์ของเรารู้จักโดเมน `one.com` หรือ `two.com`
 
 ```
 127.0.0.1   localhost
@@ -120,7 +120,7 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 
 หลังจากแก้ไขไฟล์ทั้งสองแล้ว ให้เปิด XAMPP Control Panel แล้วกด **Stop** และ **Start** ที่โมดูล Apache ใหม่อีกครั้ง
 
-## ส่วนที่ 2: การตั้งค่าฐานข้อมูล
+## ส่วนที่ 2: แก้ไข การตั้งค่าฐานข้อมูล
 
 เพื่อให้รองรับระดับสิทธิ์ต่างๆ ที่เราออกแบบไว้ ให้รันคำสั่ง SQL นี้ใน phpMyAdmin เพื่อแก้ไขตาราง `users`
 
