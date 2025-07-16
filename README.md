@@ -232,7 +232,7 @@ $router->dispatch();
 
 ```php
 <?php
-date\_default\_timezone\_set('Asia/Bangkok');
+date_default_timezone_set('Asia/Bangkok');
     
 // กำหนดค่าเริ่มต้นสำหรับทุก response
 header("Content-Type: application/json; charset=UTF-8");
