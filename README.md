@@ -404,18 +404,29 @@ define('JWT_AUDIENCE', 'one.com');
 ```
 <?php
 class Database {
-    private $host = DB_HOST;
-    private $db_name = DB_NAME;
-    private $username = DB_USER;
-    private $password = DB_PASS;
-    public $conn;
+    // กำหนดตัวแปรสำหรับเก็บข้อมูลการเชื่อมต่อฐานข้อมูล
+    private $host = DB_HOST;     // ที่อยู่ของเซิร์ฟเวอร์ฐานข้อมูล
+    private $db_name = DB_NAME;  // ชื่อฐานข้อมูล
+    private $username = DB_USER; // ชื่อผู้ใช้สำหรับเข้าถึงฐานข้อมูล
+    private $password = DB_PASS; // รหัสผ่านสำหรับเข้าถึงฐานข้อมูล
+    public $conn;                // ตัวแปรสำหรับเก็บการเชื่อมต่อ PDO
 
+    /**
+     * getConnection
+     * ฟังก์ชันสำหรับสร้างและคืนค่าการเชื่อมต่อฐานข้อมูลด้วย PDO
+     * การเรียกใช้งาน: สร้างอ็อบเจกต์ของคลาส Database แล้วเรียก $database->getConnection()
+     * คืนค่า: อ็อบเจกต์ PDO ที่ใช้สำหรับการทำงานกับฐานข้อมูล
+     * หากเกิดข้อผิดพลาด: ส่ง HTTP status code 500 และข้อความข้อผิดพลาดในรูปแบบ JSON
+     */
     public function getConnection() {
         $this->conn = null;
         try {
+            // สร้างการเชื่อมต่อ PDO ด้วย MySQL, host, ชื่อฐานข้อมูล, และกำหนด charset เป็น utf8
             $this->conn = new PDO('mysql:host=' . $this->host . ';dbname=' . $this->db_name . ';charset=utf8', $this->username, $this->password);
+            // ตั้งค่า PDO ให้ throw exception เมื่อเกิดข้อผิดพลาด
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $exception) {
+            // ส่ง HTTP status code 500 และข้อความข้อผิดพลาดในรูปแบบ JSON
             http_response_code(500);
             echo json_encode(['message' => 'Database connection error: ' . $exception->getMessage()]);
             exit();
@@ -431,8 +442,19 @@ class Database {
 ```
 <?php
 class Router {
-    protected $routes = [];
+    protected $routes = []; // อาร์เรย์สำหรับเก็บข้อมูลเส้นทางทั้งหมด
 
+    /**
+     * addRoute
+     * ฟังก์ชันสำหรับเพิ่มเส้นทางใหม่ลงในอาร์เรย์ $routes
+     * การเรียกใช้งาน: เรียกภายในคลาสผ่านเมธอด get, post, put, delete
+     * พารามิเตอร์:
+     *   - $method: HTTP method (GET, POST, PUT, DELETE)
+     *   - $uri: เส้นทาง URI (อาจมีพารามิเตอร์ เช่น /user/{id})
+     *   - $action: อาร์เรย์ที่ระบุ controller และ method ([ControllerClass, methodName])
+     *   - $middleware: อาร์เรย์ที่ระบุ middleware และ method ([MiddlewareClass, methodName])
+     * ฟังก์ชันนี้แปลง URI ที่มีพารามิเตอร์เป็น regex pattern
+     */
     private function addRoute($method, $uri, $action, $middleware = null) {
         $uri = preg_replace('/\{([a-z]+)\}/', '(?P<$1>[^/]+)', $uri);
         $uri = '#^' . $uri . '$#';
@@ -444,11 +466,29 @@ class Router {
         ];
     }
 
+    /**
+     * get, post, put, delete
+     * ฟังก์ชันสำหรับกำหนดเส้นทางสำหรับ HTTP method แต่ละประเภท
+     * การเรียกใช้งาน: $router->get('/path', [ControllerClass::class, 'methodName'], [MiddlewareClass::class, 'methodName']);
+     * พารามิเตอร์:
+     *   - $uri: เส้นทาง URI
+     *   - $action: อาร์เรย์ที่ระบุ controller และ method
+     *   - $middleware: อาร์เรย์ที่ระบุ middleware และ method (ถ้ามี)
+     */
     public function get($uri, $action, $middleware = null) { $this->addRoute('GET', $uri, $action, $middleware); }
     public function post($uri, $action, $middleware = null) { $this->addRoute('POST', $uri, $action, $middleware); }
     public function put($uri, $action, $middleware = null) { $this->addRoute('PUT', $uri, $action, $middleware); }
     public function delete($uri, $action, $middleware = null) { $this->addRoute('DELETE', $uri, $action, $middleware); }
 
+    /**
+     * dispatch
+     * ฟังก์ชันสำหรับจับคู่ URI และ HTTP method กับเส้นทางที่กำหนดไว้
+     * การเรียกใช้งาน: $router->dispatch();
+     * ตรวจสอบ URI และ method จาก request, หากตรงกับเส้นทางที่กำหนด:
+     *   - เรียก middleware (ถ้ามี)
+     *   - เรียก controller และ method ที่ระบุใน action พร้อมส่งพารามิเตอร์
+     * หากไม่พบเส้นทาง: ส่ง HTTP status code 404 และข้อความ JSON
+     */
     public function dispatch() {
         $uri = parse_url($_SERVER['REQUEST_URI'])['path'];
         $method = $_SERVER['REQUEST_METHOD'];
@@ -493,8 +533,15 @@ class AuthMiddleware {
         'manager' => 3,
         'director' => 4,
         'admin' => 5,
-    ];
+    ]; // กำหนดลำดับชั้นของบทบาทผู้ใช้
 
+    /**
+     * getDecodedToken
+     * ฟังก์ชันสำหรับตรวจสอบและถอดรหัส JWT token จาก Authorization header
+     * การเรียกใช้งาน: เรียกภายในคลาสเมื่อต้องการข้อมูลจาก token
+     * คืนค่า: อ็อบเจกต์ที่ถอดรหัสจาก JWT
+     * หากเกิดข้อผิดพลาด: ส่ง HTTP status code 401 และข้อความ JSON
+     */
     private function getDecodedToken() {
         $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
         if (!$authHeader) {
@@ -520,8 +567,22 @@ class AuthMiddleware {
         }
     }
 
+    /**
+     * isAuthenticated
+     * ฟังก์ชันสำหรับตรวจสอบว่า request มี token ที่ถูกต้องหรือไม่
+     * การเรียกใช้งาน: $middleware->isAuthenticated();
+     * เรียก getDecodedToken เพื่อตรวจสอบ token
+     */
     public function isAuthenticated() { $this->getDecodedToken(); }
 
+    /**
+     * hasMinimumRole
+     * ฟังก์ชันสำหรับตรวจสอบว่าผู้ใช้มีบทบาทเพียงพอตามที่กำหนดหรือไม่
+     * การเรียกใช้งาน: เรียกภายในคลาสผ่าน isEmployee, isManager, isAdmin
+     * พารามิเตอร์:
+     *   - $requiredRole: บทบาทขั้นต่ำที่ต้องการ
+     * หากไม่ผ่าน: ส่ง HTTP status code 403 และข้อความ JSON
+     */
     private function hasMinimumRole(string $requiredRole) {
         $decoded = $this->getDecodedToken();
         $userRole = $decoded->data->role;
@@ -533,10 +594,25 @@ class AuthMiddleware {
         }
     }
     
+    /**
+     * isEmployee, isManager, isAdmin
+     * ฟังก์ชันสำหรับตรวจสอบบทบาทขั้นต่ำของผู้ใช้
+     * การเรียกใช้งาน: $middleware->isEmployee();, $middleware->isManager();, $middleware->isAdmin();
+     * เรียก hasMinimumRole ด้วยบทบาทที่ระบุ
+     */
     public function isEmployee() { $this->hasMinimumRole('employee'); }
     public function isManager() { $this->hasMinimumRole('manager'); }
     public function isAdmin() { $this->hasMinimumRole('admin'); }
 
+    /**
+     * isSelfOrHasRole
+     * ฟังก์ชันสำหรับตรวจสอบว่าผู้ใช้เป็นเจ้าของทรัพยากรหรือมีบทบาทเพียงพอ
+     * การเรียกใช้งาน: เรียกภายในคลาสผ่าน isSelfOrManager, isSelfOrAdmin
+     * พารามิเตอร์:
+     *   - $id: ID ของทรัพยากร
+     *   - $roleOverride: บทบาทขั้นต่ำที่ต้องการหากไม่ใช่เจ้าของ
+     * หากไม่ผ่าน: ส่ง HTTP status code 403 และข้อความ JSON
+     */
     public function isSelfOrHasRole(string $id, string $roleOverride) {
         $decoded = $this->getDecodedToken();
         $userRole = $decoded->data->role;
@@ -551,6 +627,14 @@ class AuthMiddleware {
         }
     }
 
+    /**
+     * isSelfOrManager, isSelfOrAdmin
+     * ฟังก์ชันสำหรับตรวจสอบว่าเป็นเจ้าของทรัพยากรหรือมีบทบาท manager/admin
+     * การเรียกใช้งาน: $middleware->isSelfOrManager($id);, $middleware->isSelfOrAdmin($id);
+     * พารามิเตอร์:
+     *   - $id: ID ของทรัพยากร
+     * เรียก isSelfOrHasRole ด้วยบทบาทที่ระบุ
+     */
     public function isSelfOrManager($id) { $this->isSelfOrHasRole($id, 'manager'); }
     public function isSelfOrAdmin($id) { $this->isSelfOrHasRole($id, 'admin'); }
 }
@@ -601,13 +685,28 @@ namespace App\Controllers;
 use Firebase\JWT\JWT;
 
 class AuthController {
-    private $db;
+    private $db; // ตัวแปรสำหรับเก็บการเชื่อมต่อฐานข้อมูล
 
+    /**
+     * __construct
+     * ฟังก์ชันเริ่มต้นสำหรับสร้างอ็อบเจกต์ AuthController
+     * การเรียกใช้งาน: สร้างอ็อบเจกต์ AuthController อัตโนมัติเมื่อมีการ new
+     * สร้างการเชื่อมต่อฐานข้อมูลผ่านคลาส Database
+     */
     public function __construct() {
         $database = new \Database();
         $this->db = $database->getConnection();
     }
 
+    /**
+     * login
+     * ฟังก์ชันสำหรับจัดการการล็อกอินผู้ใช้และสร้าง JWT token
+     * การเรียกใช้งาน: $controller->login();
+     * อ่านข้อมูล email และ password จาก JSON input
+     * ตรวจสอบข้อมูลในฐานข้อมูลและสร้าง JWT หากถูกต้อง
+     * คืนค่า: JSON พร้อม token หากสำเร็จ หรือข้อความข้อผิดพลาด
+     * หากเกิดข้อผิดพลาด: ส่ง HTTP status code 400 หรือ 401 และข้อความ JSON
+     */
     public function login() {
         $data = json_decode(file_get_contents("php://input"));
 
@@ -670,13 +769,31 @@ class AuthController {
 namespace App\Controllers;
 
 class UserController {
-    private $db;
+    private $db; // ตัวแปรสำหรับเก็บการเชื่อมต่อฐานข้อมูล
 
+    /**
+     * __construct
+     * ฟังก์ชันเริ่มต้นสำหรับสร้างอ็อบเจกต์ UserController
+     * การเรียกใช้งาน: เรียกอัตโนมัติเมื่อสร้างอ็อบเจกต์ด้วย new UserController()
+     * หน้าที่: สร้างการเชื่อมต่อฐานข้อมูลผ่านคลาส Database และเก็บไว้ในตัวแปร $db
+     */
     public function __construct() {
         $database = new \Database();
         $this->db = $database->getConnection();
     }
 
+    /**
+     * index
+     * ฟังก์ชันสำหรับดึงรายการผู้ใช้ทั้งหมดจากฐานข้อมูล
+     * การเรียกใช้งาน: $controller->index();
+     * หน้าที่: 
+     *   - ดึงข้อมูลผู้ใช้ทั้งหมด (id, username, email, first_name, last_name, role, created_at)
+     *   - รองรับการค้นหาด้วย query string (?q=) สำหรับ username, email, first_name, last_name
+     *   - รองรับการกรองตาม role (?role=) โดยจำกัดเฉพาะ role ที่กำหนดใน whitelist
+     *   - รองรับการเรียงลำดับด้วย sort_by และ order (asc/desc) โดยจำกัดเฉพาะฟิลด์ใน whitelist
+     * คืนค่า: JSON array ของข้อมูลผู้ใช้
+     * สถานะ HTTP: 200 (OK)
+     */
     public function index() {
         $query = "SELECT id, username, email, first_name, last_name, role, created_at FROM users";
         $conditions = [];
@@ -709,6 +826,18 @@ class UserController {
         echo json_encode($users);
     }
 
+    /**
+     * show
+     * ฟังก์ชันสำหรับดึงข้อมูลผู้ใช้ตาม ID
+     * การเรียกใช้งาน: $controller->show($id);
+     * พารามิเตอร์:
+     *   - $id: ID ของผู้ใช้
+     * หน้าที่: ดึงข้อมูลผู้ใช้ (id, username, email, first_name, last_name, role, created_at) ตาม ID
+     * คืนค่า: JSON ของข้อมูลผู้ใช้หากพบ
+     * สถานะ HTTP:
+     *   - 200 (OK): หากพบผู้ใช้
+     *   - 404 (Not Found): หากไม่พบผู้ใช้
+     */
     public function show($id) {
         $query = "SELECT id, username, email, first_name, last_name, role, created_at FROM users WHERE id = :id";
         $stmt = $this->db->prepare($query);
@@ -724,6 +853,22 @@ class UserController {
         }
     }
 
+    /**
+     * create
+     * ฟังก์ชันสำหรับสร้างผู้ใช้ใหม่ในฐานข้อมูล
+     * การเรียกใช้งาน: $controller->create();
+     * หน้าที่:
+     *   - อ่านข้อมูลจาก JSON input (username, email, password, first_name, last_name, role)
+     *   - ทำความสะอาดข้อมูลด้วย htmlspecialchars และ strip_tags
+     *   - hash รหัสผ่านด้วย password_hash
+     *   - บันทึกข้อมูลลงตาราง users
+     * คืนค่า: JSON พร้อมข้อความสถานะ
+     * สถานะ HTTP:
+     *   - 201 (Created): หากสร้างสำเร็จ
+     *   - 400 (Bad Request): หากข้อมูลไม่ครบ
+     *   - 409 (Conflict): หากเกิดข้อผิดพลาดจากฐานข้อมูล (เช่น username หรือ email ซ้ำ)
+     *   - 503 (Service Unavailable): หากบันทึกไม่สำเร็จ
+     */
     public function create() {
         $data = json_decode(file_get_contents("php://input"));
         if (!empty($data->username) && !empty($data->email) && !empty($data->password)) {
@@ -762,6 +907,23 @@ class UserController {
         }
     }
 
+    /**
+     * update
+     * ฟังก์ชันสำหรับอัปเดตข้อมูลผู้ใช้ตาม ID
+     * การเรียกใช้งาน: $controller->update($id);
+     * พารามิเตอร์:
+     *   - $id: ID ของผู้ใช้
+     * หน้าที่:
+     *   - อ่านข้อมูลจาก JSON input (username, email, first_name, last_name, role)
+     *   - ทำความสะอาดข้อมูลด้วย htmlspecialchars และ strip_tags
+     *   - อัปเดตข้อมูลในตาราง users ตาม ID
+     * คืนค่า: JSON พร้อมข้อความสถานะ
+     * สถานะ HTTP:
+     *   - 200 (OK): หากอัปเดตสำเร็จ
+     *   - 400 (Bad Request): หากข้อมูลไม่ครบ
+     *   - 404 (Not Found): หากไม่พบผู้ใช้หรือข้อมูลไม่มีการเปลี่ยนแปลง
+     *   - 503 (Service Unavailable): หากอัปเดตไม่สำเร็จ
+     */
     public function update($id) {
         $data = json_decode(file_get_contents("php://input"));
         if (!empty($data->username) && !empty($data->email) && !empty($data->role)) {
@@ -793,6 +955,19 @@ class UserController {
         }
     }
 
+    /**
+     * delete
+     * ฟังก์ชันสำหรับลบผู้ใช้ตาม ID
+     * การเรียกใช้งาน: $controller->delete($id);
+     * พารามิเตอร์:
+     *   - $id: ID ของผู้ใช้
+     * หน้าที่: ลบผู้ใช้จากตาราง users ตาม ID
+     * คืนค่า: JSON พร้อมข้อความสถานะ
+     * สถานะ HTTP:
+     *   - 200 (OK): หากลบสำเร็จ
+     *   - 404 (Not Found): หากไม่พบผู้ใช้
+     *   - 503 (Service Unavailable): หากลบไม่สำเร็จ
+     */
     public function delete($id) {
         $query = "DELETE FROM users WHERE id = :id";
         $stmt = $this->db->prepare($query);
@@ -812,6 +987,18 @@ class UserController {
         }
     }
 
+    /**
+     * checkExistence
+     * ฟังก์ชันสำหรับตรวจสอบว่า username หรือ email มีอยู่ในฐานข้อมูลหรือไม่
+     * การเรียกใช้งาน: $controller->checkExistence();
+     * หน้าที่:
+     *   - อ่านข้อมูลจาก JSON input (username หรือ email)
+     *   - ตรวจสอบในตาราง users ว่ามี username หรือ email นี้หรือไม่
+     * คืนค่า: JSON พร้อมสถานะ exists (true/false) และข้อความ
+     * สถานะ HTTP:
+     *   - 200 (OK): หากตรวจสอบสำเร็จ
+     *   - 400 (Bad Request): หากไม่มี username หรือ email ใน input
+     */
     public function checkExistence() {
         $data = json_decode(file_get_contents("php://input"));
         $field = !empty($data->username) ? 'username' : (!empty($data->email) ? 'email' : null);
@@ -835,6 +1022,24 @@ class UserController {
         }
     }
 
+    /**
+     * changePassword
+     * ฟังก์ชันสำหรับเปลี่ยนรหัสผ่านของผู้ใช้ตาม ID
+     * การเรียกใช้งาน: $controller->changePassword($id);
+     * พารามิเตอร์:
+     *   - $id: ID ของผู้ใช้
+     * หน้าที่:
+     *   - อ่านข้อมูล old_password และ new_password จาก JSON input
+     *   - ตรวจสอบว่ารหัสผ่านเก่าถูกต้องหรือไม่
+     *   - hash รหัสผ่านใหม่และอัปเดตในตาราง users
+     * คืนค่า: JSON พร้อมข้อความสถานะ
+     * สถานะ HTTP:
+     *   - 200 (OK): หากเปลี่ยนรหัสผ่านสำเร็จ
+     *   - 400 (Bad Request): หากข้อมูลไม่ครบ
+     *   - 401 (Unauthorized): หากรหัสผ่านเก่าไม่ถูกต้อง
+     *   - 404 (Not Found): หากไม่พบผู้ใช้
+     *   - 503 (Service Unavailable): หากอัปเดตไม่สำเร็จ
+     */
     public function changePassword($id) {
         $data = json_decode(file_get_contents("php://input"));
 
