@@ -874,13 +874,13 @@ class UserController {
 ?>
 ```
 
-# 5.คู่มือการใช้งาน API และตัวอย่างการเรียก Endpoint
+# 5.การใช้งาน API และตัวอย่างการเรียก Endpoint
 
-เอกสารนี้จะอธิบายวิธีการเรียกใช้งานแต่ละ Endpoint ของ API ที่เราได้สร้างขึ้น พร้อมตัวอย่าง Request, Response, และสิทธิ์ที่จำเป็นในการเข้าถึง
+จะอธิบายวิธีการเรียกใช้งานแต่ละ Endpoint ของ API ที่เราได้สร้างขึ้น พร้อมตัวอย่าง Request, Response, และสิทธิ์ที่จำเป็นในการเข้าถึง
 
 ## 5.1 การเตรียมตัวเบื้องต้น
 
-* **โปรแกรม:** ต้องมีโปรแกรมสำหรับทดสอบ API เช่น [Postman](https://www.postman.com/downloads/ "null") หรือ [Insomnia](https://insomnia.rest/download "null")
+* **โปรแกรม:** ต้องมีโปรแกรมสำหรับทดสอบ API เช่น [Postman](https://www.postman.com/downloads/ "null") 
 
 * **Token:** การเรียกใช้งาน Endpoint ส่วนใหญ่จำเป็นต้องมีการยืนยันตัวตนด้วย JWT Token ซึ่งจะได้รับมาจากการ Login
 
