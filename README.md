@@ -1736,3 +1736,6 @@ class UserController {
 	]
 }
 ```
+
+ในขั้นตอนต่อไปจะเป็นการจัดการกับ products, orders, order_items, categories, reviews, payments, addresses และ การสร้าง Front-End หรือเว็บแอพเพื่อใช้งาน API โปรแกรมติดตามต่อไปกันครับ
+```
