@@ -330,7 +330,7 @@ RewriteRule ^ index.php [QSA,L]
 
 ### ไฟล์: `/public/index.php`
 
-```
+```php
 <?php
 // เปิด Error Reporting ไว้สำหรับตอนพัฒนาโปรแกรม
 ini_set('display_errors', 1);
@@ -354,7 +354,7 @@ $router->dispatch();
 
 ### ไฟล์: `/core/initialize.php`
 
-```
+```php
 <?php
 // ตั้งค่า Timezone ให้เป็นเวลาประเทศไทย
 date_default_timezone_set('Asia/Bangkok');
@@ -381,7 +381,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 ### ไฟล์: `/config/config.php`
 
-```
+```php
 <?php
 // ไฟล์สำหรับเก็บค่าตั้งค่าต่างๆ ของโปรเจค
 
@@ -401,7 +401,7 @@ define('JWT_AUDIENCE', 'one.com');
 
 ### ไฟล์: `/config/Database.php`
 
-```
+```php
 <?php
 class Database {
     // กำหนดตัวแปรสำหรับเก็บข้อมูลการเชื่อมต่อฐานข้อมูล
@@ -439,7 +439,7 @@ class Database {
 
 ### ไฟล์: `/src/Core/Router.php`
 
-```
+```php
 <?php
 class Router {
     protected $routes = []; // อาร์เรย์สำหรับเก็บข้อมูลเส้นทางทั้งหมด
@@ -519,7 +519,7 @@ class Router {
 
 ### ไฟล์: `/src/Middleware/AuthMiddleware.php`
 
-```
+```php
 <?php
 namespace App\Middleware;
 
@@ -643,7 +643,7 @@ class AuthMiddleware {
 
 ### ไฟล์: `/src/routes.php`
 
-```
+```php
 <?php
 use App\Controllers\UserController;
 use App\Controllers\AuthController;
@@ -678,7 +678,7 @@ $router->delete('/api/users/{id}', [UserController::class, 'delete'], [AuthMiddl
 
 ### ไฟล์: `/src/Controllers/AuthController.php`
 
-```
+```php
 <?php
 namespace App\Controllers;
 
@@ -764,7 +764,7 @@ class AuthController {
 
 ### ไฟล์: `/src/Controllers/UserController.php`
 
-```
+```php
 <?php
 namespace App\Controllers;
 
