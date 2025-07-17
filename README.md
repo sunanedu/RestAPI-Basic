@@ -397,6 +397,7 @@ define('JWT_ISSUER', 'one.com');
 define('JWT_AUDIENCE', 'one.com');
 ?>
 ```
+สร้างรหัสผ่านแบบง่ายๆ [https://passwd.kroovit.com](https://passwd.kroovit.com/)
 
 ### ไฟล์: `/config/Database.php`
 
