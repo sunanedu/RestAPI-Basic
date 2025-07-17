@@ -185,6 +185,11 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 (2, 1, 4, 'Good smartphone, but battery could be better.');
 ```
 
+## สนับสนุนให้ผมทำเนื้อหาดีๆ ได้ตามความเหมาะสม เพื่อเป็นกำลังใจในการทำเนื้อหาดีๆ ต่อไปครับ
+
+![](qr-code.jpg)
+
+
 ## ขั้นตอนที่ 2: ตั้งค่าโปรเจคและเว็บเซิร์ฟเวอร์ (XAMPP)
 
 เพื่อให้เราเรียก API ผ่าน URL สวยๆ ได้ (เช่น `http://one.com`) เรามาตั้งค่า XAMPP กันก่อนครับ
