@@ -874,19 +874,19 @@ class UserController {
 ?>
 ```
 
-# คู่มือการใช้งาน API และตัวอย่างการเรียก Endpoint
+# 5.คู่มือการใช้งาน API และตัวอย่างการเรียก Endpoint
 
 เอกสารนี้จะอธิบายวิธีการเรียกใช้งานแต่ละ Endpoint ของ API ที่เราได้สร้างขึ้น พร้อมตัวอย่าง Request, Response, และสิทธิ์ที่จำเป็นในการเข้าถึง
 
-## 1. การเตรียมตัวเบื้องต้น
+## 5.1 การเตรียมตัวเบื้องต้น
 
 * **โปรแกรม:** ต้องมีโปรแกรมสำหรับทดสอบ API เช่น [Postman](https://www.postman.com/downloads/ "null") หรือ [Insomnia](https://insomnia.rest/download "null")
 
 * **Token:** การเรียกใช้งาน Endpoint ส่วนใหญ่จำเป็นต้องมีการยืนยันตัวตนด้วย JWT Token ซึ่งจะได้รับมาจากการ Login
 
-## 2. การยืนยันตัวตน (Authentication)
+## 5.2 การยืนยันตัวตน (Authentication)
 
-### 2.1 Login เพื่อรับ Token
+### Login เพื่อรับ Token
 
 นี่คือขั้นตอนแรกและสำคัญที่สุดเพื่อเข้าใช้งานระบบ
 
@@ -916,7 +916,7 @@ class UserController {
 
 **คำแนะนำ:** ให้คัดลอกค่า `token` ที่ได้ทั้งหมดเก็บไว้เพื่อใช้ใน Header ของ Request อื่นๆ
 
-## 3. การจัดการผู้ใช้ (User Management)
+## 5.3 การจัดการผู้ใช้ (User Management)
 
 **Header ที่ต้องใช้ (สำหรับทุก Endpoint ที่ต้อง Login):**
 
@@ -924,7 +924,7 @@ class UserController {
 
 * **Value:** `Bearer <TOKEN_ที่ได้จากการ_LOGIN>`
 
-### 3.1 สร้างผู้ใช้ใหม่ (Create User)
+### 1) สร้างผู้ใช้ใหม่ (Create User)
 
 * **Endpoint:** `POST /api/users`
 
@@ -953,7 +953,7 @@ class UserController {
 }
 ```
 
-### 3.2 ตรวจสอบ Username/Email ซ้ำ
+### 2) ตรวจสอบ Username/Email ซ้ำ
 
 * **Endpoint:** `POST /api/users/check-existence`
 
@@ -978,7 +978,7 @@ class UserController {
 }
 ```
 
-### 3.3 ดูข้อมูลผู้ใช้ทั้งหมด (Get All Users)
+### 3) ดูข้อมูลผู้ใช้ทั้งหมด (Get All Users)
 
 * **Endpoint:** `GET /api/users`
 
@@ -1023,7 +1023,7 @@ class UserController {
 ]
 ```
 
-### 3.4 ดูข้อมูลผู้ใช้คนเดียว (Get Single User)
+### 4) ดูข้อมูลผู้ใช้คนเดียว (Get Single User)
 
 * **Endpoint:** `GET /api/users/{id}`
 
@@ -1051,7 +1051,7 @@ class UserController {
 }
 ```
 
-### 3.5 แก้ไขข้อมูลผู้ใช้ (Update User)
+### 5) แก้ไขข้อมูลผู้ใช้ (Update User)
 
 * **Endpoint:** `PUT /api/users/{id}`
 
@@ -1085,7 +1085,7 @@ class UserController {
 }
 ```
 
-### 3.6 เปลี่ยนรหัสผ่าน (Change Password)
+### 6) เปลี่ยนรหัสผ่าน (Change Password)
 
 * **Endpoint:** `POST /api/users/{id}/change-password`
 
@@ -1116,7 +1116,7 @@ class UserController {
 }
 ```
 
-### 3.7 ลบผู้ใช้ (Delete User)
+### 7) ลบผู้ใช้ (Delete User)
 
 * **Endpoint:** `DELETE /api/users/{id}`
 
@@ -1134,15 +1134,15 @@ class UserController {
 }
 ```
 
-### วิธีใช้งานไฟล์ Postman Collection
+### 6.วิธีใช้งานไฟล์ Postman Collection
 
-1. **คัดลอกโค้ด:** คัดลอกเนื้อหาทั้งหมดในกล่องโค้ด "Postman Collection สำหรับทดสอบ API" ด้านล่างสุด
+6.1. **คัดลอกโค้ด:** คัดลอกเนื้อหาทั้งหมดในกล่องโค้ด "Postman Collection สำหรับทดสอบ API" ด้านล่างสุด
 
-2. **สร้างไฟล์ใหม่:** สร้างไฟล์ใหม่บนคอมพิวเตอร์ของคุณ ตั้งชื่ออะไรก็ได้ แต่ให้ลงท้ายด้วย `.json` เช่น `RestAPI-Basic.postman_collection.json`
+6.2. **สร้างไฟล์ใหม่:** สร้างไฟล์ใหม่บนคอมพิวเตอร์ของคุณ ตั้งชื่ออะไรก็ได้ แต่ให้ลงท้ายด้วย `.json` เช่น `RestAPI-Basic.postman_collection.json`
 
-3. **วางโค้ด:** วางโค้ดที่คัดลอกมาลงในไฟล์แล้วบันทึก
+6.3. **วางโค้ด:** วางโค้ดที่คัดลอกมาลงในไฟล์แล้วบันทึก
 
-4. **Import ใน Postman:**
+6.4. **Import ใน Postman:**
 
    * เปิดโปรแกรม Postman
 
@@ -1150,7 +1150,7 @@ class UserController {
 
    * เลือกไฟล์ `.json` ที่คุณเพิ่งสร้างไว้
 
-5. **ทดสอบ:**
+6.5. **ทดสอบ:**
 
    * คุณจะเห็น Collection ใหม่ชื่อ "RestAPI-Basic"
 
